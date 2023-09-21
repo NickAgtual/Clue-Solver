@@ -16,6 +16,10 @@ struct gameData{
     int extraCards;
     std::vector<std::string> names;
     std::vector<Player> playerObjects;
+    std::vector<std::vector<int>> inHand;
+    std::vector<std::vector<int>> notInHand;
+    std::vector<std::vector<int>> checkVals;
+    std::vector<int> solution;
 };
 
 void instantiateObjects(gameData &game) {
@@ -112,6 +116,31 @@ void extraCard(gameData &game) {
     }
 }
 
+std::vector<int> getIndeces(std::vector<int> vector) {
+    std::vector<int> indexVector;
+    for (int ii = 0; ii < vector.size(); ii++) {
+        if (vector[ii] == 0) {
+            indexVector.push_back(ii);
+        }
+    }
+    return indexVector;
+}
+
+void initialHand(gameData &game) {
+    int tempKey;
+    std::cout << "Enter the key values for the cards in your hand delimited by a space" << std::endl;
+    std::cin >> tempKey;
+    for (int ii = 0; ii < game.playerObjects[0].numCards; ii++) {
+        game.inHand[0][tempKey] = 1;
+    }
+    
+    std::vector<int> tempIndex;
+    tempIndex = getIndeces(game.inHand[0]);
+    for (int ii = 0; ii < tempIndex.size(); ii++) {
+        game.notInHand[0][ii] = 1;
+    }
+}
+
 int main(int argc, const char * argv[]) {
     
     struct gameData game;
@@ -119,15 +148,27 @@ int main(int argc, const char * argv[]) {
     std::cout << "Enter the number of players including yourself:" << std::endl;
     std::cin >> game.numPlayers;
     
+    // Initializing vectors of vectors in structure with zeros (21, numPlayers)
+    game.inHand.resize(game.totalCards, std::vector<int>(game.numPlayers, 0));
+    game.notInHand.resize(game.totalCards, std::vector<int>(game.numPlayers, 0));
+    game.checkVals.resize(game.totalCards, std::vector<int>(game.numPlayers, 0));
+    // Initializing solution vector with zeros (21, 1)
+    game.solution.resize(game.totalCards, 0);
+    
+    // Instnatiating player objects
     instantiateObjects(game);
     
+    // Assigning names to player objects
     assignNames(game);
     
+    /*
+     Calclating the number of cards each player has and assigning the extra cards
+     based on user input
+     */
     extraCard(game);
-
     
-    for (int ii=0; ii < game.numPlayers; ii++) {
-        std::cout << game.playerObjects[ii].numCards << " \t";
-    }
+    // Entering card data for intial hand
+    initialHand(game);
 
 }
+
